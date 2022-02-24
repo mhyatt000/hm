@@ -1,5 +1,5 @@
 # hm
-hm kaggle competition
+[hm kaggle competition](https://www.kaggle.com/c/h-and-m-personalized-fashion-recommendations/overview)
 
 
 ### NOTES:
@@ -9,6 +9,8 @@ hm kaggle competition
 2. downloaded data from kaggle    
 
 ### TODO:
+
+- add requirements.txt
 
 - kmeans
     - clients
