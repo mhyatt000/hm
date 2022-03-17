@@ -15,6 +15,9 @@ from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.regularizers import L1, L1L2, L2
 
 from visualize import scatter
+from preprocess import article_mapper
+
+'''TODO do people buy different stuff depending on what they already bought'''
 
 
 def build_model(*, norm, shape=(4), regularizer=None):
@@ -127,17 +130,23 @@ def sandbox():
     # scatter(data)
 
 
-def preprocess():
+def process():
+    path_articles = "articles.csv"
+    articles = pd.read_csv(path_articles)
+
     path_transactions = "head_transactions_train.csv"
     transactions = pd.read_csv(path_transactions)
 
     transactions['t_dat'] = transactions['t_dat'].apply(lambda x: to_days(x))
-
     transactions["customer_id"] = transactions["customer_id"].apply(
         lambda x: int(x, 16)
     )
 
+    map = article_mapper()
+    transactions['article_id'] = transactions["article_id"].apply(lambda x: map[x])
+
     y = transactions['article_id'].to_numpy().astype(float)
+
     x = transactions.drop(labels='article_id', axis=1).to_numpy().astype(float)
     norm = tf.keras.layers.experimental.preprocessing.Normalization()
     norm.adapt(x)
@@ -149,7 +158,7 @@ def preprocess():
 
 def main():
 
-    x, y, norm = preprocess()
+    x, y, norm = process()
 
     model = build_model(norm=norm)
     model.summary()
