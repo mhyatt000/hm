@@ -36,16 +36,14 @@ def build_model(*, norm, shape=(4), regularizer=None):
                 for i in range(3)
             ],
             # BatchNormalization(),
-            Dense(1),
+            Dense(105542),
         ]
     )
 
     model.compile(
         optimizer="adam",
-        loss=tf.keras.losses.MeanSquaredError(),
-        # SparseCategoricalCrossentropy(from_logits=True),
-        metrics=[tf.keras.metrics.MeanSquaredError()]
-        # [SparseCategoricalAccuracy()],
+        loss=SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[SparseCategoricalAccuracy()],
     )
     return model
 
