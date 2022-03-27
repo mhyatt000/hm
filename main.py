@@ -15,11 +15,37 @@ from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.regularizers import L1, L1L2, L2
 
 from visualize import scatter
-from preprocess import article_mapper, customer_mapper
+import preprocess
 
 '''TODO do people buy different stuff depending on what they already bought'''
 
 '''TODO sklearn.neural_network.BernouliRBM()'''
+
+
+def build_recurrent():
+
+    model = Sequential(
+        [
+            norm,
+
+            # InputLayer(input_shape=shape),
+            Dense(4096, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            Dense(4096, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            Dense(128, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            # LSTM or GRU ... ouput 12 of em
+            Dense(105542),
+        ]
+    )
+
+    model.compile(
+        optimizer="adam",
+        loss=SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[SparseCategoricalAccuracy()],
+    )
+    return model
 
 
 def build_model(*, norm, shape=(4), regularizer=None):
@@ -29,18 +55,13 @@ def build_model(*, norm, shape=(4), regularizer=None):
         [
             norm,
             # InputLayer(input_shape=shape),
-            # BatchNormalization(),
-            *[
-                Dense(
-                    100,
-                    activation="relu",
-                    kernel_initializer="glorot_uniform",
-                    kernel_regularizer=regularizer,
-                    name=f"hidden{i+1}",
-                )
-                for i in range(3)
-            ],
-            # BatchNormalization(),
+            Dense(4096, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            Dense(4096, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            Dense(128, activation="relu", kernel_initializer="glorot_uniform"),
+            BatchNormalization(),
+            # LSTM or GRU ... ouput 12 of em
             Dense(105542),
         ]
     )
@@ -71,101 +92,13 @@ def timed_eval(train_x, train_y, test_x, test_y, *, model):
     )
 
 
-def to_days(date_string):
-    """returns number of days given a date_string ex: 2018-09-20"""
-
-    dates = [int(item) for item in date_string.split("-")]
-    return (dates[0] * 365) + (dates[1] * 30) + dates[2]
-
-
-def sandbox():
-    '''testing things out'''
-
-    path_articles = "articles.csv"
-    # articles = pd.read_csv(path_articles)
-
-    path_customers = "customers.csv"
-    # customers = pd.read_csv(path_customers)
-
-    path_transactions = "transactions_train.csv"
-    transactions = pd.read_csv(path_transactions)
-    # transactions['t_dat'] = transactions['t_dat'].apply(lambda x: to_days(x))
-
-    # transactions["customer_id"] = transactions["customer_id"].apply(
-    #     lambda x: int(x, 16)
-    # )
-
-    # print(transactions['customer_id'])
-    # print(transactions['article_id'])
-    # print(transactions['price'])
-    # print(transactions['sales_channel_id'])
-
-    # remove for now?
-    # articles = articles.drop(labels='detail_desc', axis=1)
-    transactions = transactions.drop(labels=['t_dat', 'customer_id', 'sales_channel_id'], axis=1)
-
-    print(transactions)
-    print(transactions.columns)
-
-    quit()
-
-    fig, ax = plt.subplots()
-    ax.scatter(
-        articles["product_type_no"].tolist(), articles["garment_group_no"].tolist()
-    )
-    plt.show()
-
-    # scatter(data)
-
-
-def process():
-    path_articles = "articles.csv"
-    articles = pd.read_csv(path_articles)
-
-    map = article_mapper()
-    article_ids = articles['article_id'].tolist()
-    colors = articles['colour_group_code'].tolist()
-
-    article_info = {map[x]: {'color': col} for x, col in zip(article_ids, colors)}
-
-    path_transactions = "head_transactions_train.csv"
-    transactions = pd.read_csv(path_transactions)
-
-    t_dat = transactions['t_dat'].tolist()
-    t_dat = [item.split('-') for item in t_dat]
-    transactions['year'] = [item[0] for item in t_dat]
-    transactions['month'] = [item[1] for item in t_dat]
-    transactions['day'] = [item[2] for item in t_dat]
-    transactions = transactions.drop(labels='t_dat', axis=1)
-
-    customer_map = customer_mapper()
-    transactions["customer_id"] = transactions["customer_id"].apply(
-        lambda x: customer_map[x]
-    )
-
-    '''TODO CustomerMap object try to map else random number ...
-    fault tolerance in case they give outside values'''
-
-    transactions['article_id'] = transactions["article_id"].apply(lambda x: map[x])
-    transactions['color'] = transactions['article_id'].apply(lambda x: article_info[x]['color'])
-
-    y = transactions['article_id'].to_numpy().astype(float)
-
-    x = transactions.drop(labels='article_id', axis=1).to_numpy().astype(float)
-
-    norm = tf.keras.layers.experimental.preprocessing.Normalization()
-    norm.adapt(x)
-
-    return x, y, norm
-
-
 def main():
 
-    x, y, norm = process()
+    x, y, norm = preprocess.process()
 
     model = build_model(norm=norm)
     model.summary()
-    hist = model.fit(x, y, batch_size=32, epochs=50, verbose=1)
+    hist = model.fit(x, y, batch_size=128, epochs=50, verbose=1)  # was 32 batch
 
 
 if __name__ == "__main__":
