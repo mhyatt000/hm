@@ -69,7 +69,8 @@ def process():
     transactions["year"] = [item[0] for item in t_dat]
     transactions["month"] = [item[1] for item in t_dat]
     transactions["day"] = [item[2] for item in t_dat]
-    transactions = transactions.drop(labels="t_dat", axis=1)
+    transactions['t_dat'] = transactions['t_dat'].apply(lambda x: [int(x) for x in x.split('-')])
+    transactions['t_dat'] = transactions['t_dat'].apply(lambda x: sum(x[0]*365 + x[1]*30 + x[2]))
 
     # transfer article info to transactions
     transactions["article_id"] = transactions["article_id"].apply(
@@ -94,26 +95,26 @@ def process():
     zip_code_map = zip_hash_map()
     transactions["postal_code"] = transactions["postal_code"].apply(lambda x: zip_code_map[x])
 
-
+    y,x = np.array([]), np.array([])
     for id in customer_info.keys():
 
         temp = transactions[transactions['customer_id' == id]]
+        temp = temp.sort_values(by=['t_dat'])
 
-        #sort dataframe
-        temp = temp.sort_values(by=['Country'])
+        timesteps = 200
+        length = len(temp.iterrows())
+        n, r = length // timesteps, length % timesteps
 
+        for i in range(n):
+            batch = temp.iloc[timesteps*i:timesteps*i+1, :]
+            yi = batch["article_id"].to_numpy().astype(float)
+            xi = batch.drop(labels=['t_dat', 'article_id'], axis=1).to_numpy().astype(float)
 
-        # append batches of 200 to something
-        # throw out the remainder
-
-
-    # prepare for export
-    y = transactions["article_id"].to_numpy().astype(float)
-    x = transactions.drop(labels="article_id", axis=1).to_numpy().astype(float)
+            y = np.append(y, yi)
+            x = np.append(x, xi)
 
     norm = tf.keras.layers.experimental.preprocessing.Normalization()
     norm.adapt(x)
-
 
     return x, y, norm
 
