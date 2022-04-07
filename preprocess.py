@@ -69,8 +69,7 @@ def process():
     transactions["year"] = [item[0] for item in t_dat]
     transactions["month"] = [item[1] for item in t_dat]
     transactions["day"] = [item[2] for item in t_dat]
-    transactions['t_dat'] = transactions['t_dat'].apply(lambda x: [int(x) for x in x.split('-')])
-    transactions['t_dat'] = transactions['t_dat'].apply(lambda x: sum(x[0]*365 + x[1]*30 + x[2]))
+    transactions['t_dat'] = transactions['t_dat'].apply(lambda x: [int(item)*[365,30,1][i] for i,item in enumerate(x.split('-'))])
 
     # transfer article info to transactions
     transactions["article_id"] = transactions["article_id"].apply(
@@ -98,7 +97,7 @@ def process():
     y,x = np.array([]), np.array([])
     for id in customer_info.keys():
 
-        temp = transactions[transactions['customer_id' == id]]
+        temp = transactions[transactions['customer_id'] == id]
         temp = temp.sort_values(by=['t_dat'])
 
         timesteps = 200
