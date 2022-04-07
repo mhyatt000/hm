@@ -94,12 +94,26 @@ def process():
     zip_code_map = zip_hash_map()
     transactions["postal_code"] = transactions["postal_code"].apply(lambda x: zip_code_map[x])
 
+
+    for id in customer_info.keys():
+
+        temp = transactions[transactions['customer_id' == id]]
+
+        #sort dataframe
+        temp = temp.sort_values(by=['Country'])
+
+
+        # append batches of 200 to something
+        # throw out the remainder
+
+
     # prepare for export
     y = transactions["article_id"].to_numpy().astype(float)
     x = transactions.drop(labels="article_id", axis=1).to_numpy().astype(float)
 
     norm = tf.keras.layers.experimental.preprocessing.Normalization()
     norm.adapt(x)
+
 
     return x, y, norm
 

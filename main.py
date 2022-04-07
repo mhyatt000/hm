@@ -7,7 +7,7 @@ import pandas as pd
 import sklearn
 import tensorflow as tf
 from tensorflow.keras.initializers import HeNormal, Ones, RandomNormal
-from tensorflow.keras.layers import Dense, Flatten, InputLayer, BatchNormalization
+from tensorflow.keras.layers import Dense, Flatten, InputLayer, BatchNormalization, GRU
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.models import Sequential
@@ -19,15 +19,19 @@ import preprocess
 
 '''TODO do people buy different stuff depending on what they already bought'''
 
-'''TODO sklearn.neural_network.BernouliRBM()'''
-
 
 def build_recurrent():
+    '''TODO feature:
+    - time since last purchase
+    - total number of purchases
+    - total ammount of money spent
+    (RFM)
+    '''
 
     model = Sequential(
         [
             norm,
-
+            GRU(return_sequences, ), 'TODO'
             # InputLayer(input_shape=shape),
             Dense(4096, activation="relu", kernel_initializer="glorot_uniform"),
             BatchNormalization(),
