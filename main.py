@@ -7,7 +7,7 @@ import pandas as pd
 import sklearn
 import tensorflow as tf
 from tensorflow.keras.initializers import HeNormal, Ones, RandomNormal
-from tensorflow.keras.layers import Dense, Flatten, InputLayer, BatchNormalization, LSTM
+from tensorflow.keras.layers import Dense, Flatten, InputLayer, BatchNormalization, LSTM, LayerNormalization
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.models import Sequential
@@ -20,7 +20,7 @@ import preprocess
 '''TODO do people buy different stuff depending on what they already bought'''
 
 
-def build_recurrent(norm):
+def build_recurrent():
     '''TODO feature:
     - time since last purchase
     - total number of purchases
@@ -30,7 +30,10 @@ def build_recurrent(norm):
 
     model = Sequential(
         [
-            norm,
+            InputLayer(input_shape=(32,18)),
+            # LayerNormalization(),
+            LSTM(4096, recurrent_activation='relu', return_sequences=True),
+            LSTM(4096, recurrent_activation='relu', return_sequences=True),
             LSTM(105542, recurrent_activation='relu', return_sequences=True),
         ]
     )
@@ -89,25 +92,27 @@ def timed_eval(train_x, train_y, test_x, test_y, *, model):
 
 def main():
 
-    x,y,norm = preprocess.load()
+    model = build_recurrent()
 
-    x = x.reshape(-1,32,18)
-    y = y.reshapre(-1,32,1)
-
-    # try:
-    #     x, y, norm = preprocess.load()
-    #     print('loaded data')
-    # except:
-    #     x, y, norm = preprocess.process()
-
-
-    print(x.shape)
-    print(y.shape)
-    quit()
-
-    model = build_model(norm=norm)
-    model.summary()
-    hist = model.fit(x, y, batch_size=128, epochs=50, verbose=1)  # was 32 batch
+    # x,y,norm = preprocess.load()
+    #
+    # x = x.reshape(-1,32,18)
+    # y = y.reshapre(-1,32,1)
+    #
+    # # try:
+    # #     x, y, norm = preprocess.load()
+    # #     print('loaded data')
+    # # except:
+    # #     x, y, norm = preprocess.process()
+    #
+    #
+    # print(x.shape)
+    # print(y.shape)
+    # quit()
+    #
+    # model = build_model(norm=norm)
+    # model.summary()
+    # hist = model.fit(x, y, batch_size=128, epochs=50, verbose=1)  # was 32 batch
 
 
 if __name__ == "__main__":
