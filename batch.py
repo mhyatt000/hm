@@ -22,19 +22,7 @@ def get_args():
 
 class CustomDataset(torch.utils.data.Dataset):
 
-    '''TODO
-
-
-    split csvs with natural language 8?
-
-    run through each one and make a cust tranaction.csv
-
-    iter = find data.shape[0] // 8
-    for iter in shape ...p
-
-
-    '''
-
+    '''split csvs with natural language d1 .. d15 csv''' 
 
     def __init__(self, timesteps=16, build=False):
 
