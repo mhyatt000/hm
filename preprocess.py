@@ -108,7 +108,7 @@ def process():
             lambda x: customer_info[x][c[0]]
         )
 
-    transactions.to_csv('data.csv')
+    transactions.to_csv('data.csv', index=False)
 
 
 # def load():
@@ -147,7 +147,7 @@ def generate_map(file, column):
 
 
 def main():
-    pass 
+    pass
     # process()
 
 if __name__ == "__main__":
