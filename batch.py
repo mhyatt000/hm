@@ -144,6 +144,15 @@ def main():
     dataset = CustomDataset(timesteps=32, build=False)
     x,y = dataset[0]
     print(x.shape, y.shape)
+
+    dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
+
+    for i in range(10):
+        train_features, train_labels = next(iter(train_dataloader))
+        print(f"Feature batch shape: {train_features.size()}")
+        print(f"Labels batch shape: {train_labels.size()}")
+        time.sleep(0.25)
+
     # print(len(data))
     #
     # print(data.x.shape)
