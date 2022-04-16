@@ -29,7 +29,8 @@ def get_args():
     ap.add_argument('-t', '--train', action='store_true')
     ap.add_argument('-e', '--eval', action='store_true')
     ap.add_argument('-v', '--verbose', action='store_true')
-    ap.add_argument('-n', '--num_epochs', type=int)
+    ap.add_argument('-n', '--num-epochs', type=int)
+    ap.add_argument('-b', '--batch-size', type=int)
 
     args = ap.parse_args()
 
@@ -149,7 +150,7 @@ def main():
     net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net.args = args
     net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
-    net.batch_size = 64
+    net.batch_size = args.batch_size if args.batch_size else 64
 
     # try to load data
     train_iter = CustomDataLoader(batch_size=net.batch_size)
