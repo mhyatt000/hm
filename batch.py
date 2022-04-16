@@ -126,7 +126,7 @@ class CustomDataset(torch.utils.data.Dataset):
         self.pbar = tqdm(total=len(self))
         def is_valid(i):
             file = f'dataset/cust_{i}.csv'
-            self.pbar.step(1)
+            self.pbar.update(1)
             try:
                 data = pd.read_csv(file)
                 length = data.shape[0]
