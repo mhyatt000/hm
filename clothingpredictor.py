@@ -100,9 +100,16 @@ def train(net, train_iter):
             nn.utils.clip_grad_norm_(net.parameters(), 1)
             optimizer.step()
 
-            losses.append(l.sum())
-            pbar.set_postfix_str(f'batch : {i+1}/{len_iter}')
-            pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
+            # accuracy ?
+            
+
+            # losses.append(l.sum())
+
+            if i%100:
+                pbar.set_postfix({
+                    f'batch' : f'{i+1}/{len_iter}',
+                    f'loss' : f'{round(float(l.sum()),4)}',
+                })
             pbar.update(1)
 
 
