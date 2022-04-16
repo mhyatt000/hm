@@ -121,6 +121,27 @@ class CustomDataset(torch.utils.data.Dataset):
         print(f'{self.z} : too small', file)
         return self.__getitem__(i+1)
 
+    def count_valid_files(self):
+
+        gone, inv, val = 0,0,0
+        for i in tqdm(range(len(self))):
+            file = f'dataset/cust_{i}.csv'
+
+            try:
+                data = pd.read_csv(file)
+                length = data.shape[0]
+                if length >= self.timesteps:
+                    val += 1
+                else:
+                    inv += 1
+            except:
+                gone += 1
+
+        total = sum([gone,inv,val])
+        print(total)
+        print(f'total == len : {total==len(self)}')
+        print(f'{val/len(self)} % valid')
+
 
 class CustomDataLoader(DataLoader):
 
@@ -137,9 +158,13 @@ def try_again(func, **kwargs):
     except:
         try_again(func)
 
+
+
 def main():
 
     dataset = CustomDataset(build=False)
+    dataset.count_valid_files()
+    quit()
 
     print(len(dataset))
     for i in range(len(dataset)):
