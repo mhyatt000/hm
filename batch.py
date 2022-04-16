@@ -148,7 +148,7 @@ def main():
     dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
 
     for i in range(10):
-        train_features, train_labels = next(iter(train_dataloader))
+        train_features, train_labels = next(iter(dataloader))
         print(f"Feature batch shape: {train_features.size()}")
         print(f"Labels batch shape: {train_labels.size()}")
         time.sleep(0.25)
