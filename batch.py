@@ -27,6 +27,7 @@ class CustomDataset(torch.utils.data.Dataset):
     def __init__(self, timesteps=16, build=False):
 
         self.timesteps = timesteps
+        self.z = 0 # number of times returning zeros
 
         if build:
 
@@ -107,17 +108,25 @@ class CustomDataset(torch.utils.data.Dataset):
         customers = pd.read_csv('docs/customers.csv')
         return customers.shape[0]
 
-    def __getitem__(self, i):
 
+    def return_zeros(self):
+
+        self.z += 1
+        print(self.z)
         zeros = [
             torch.zeros(size=(1,self.timesteps,18)),
             torch.zeros(size=(1,self.timesteps,1))
         ]
+        return zeros[0][0], zeros[1][0]
+
+
+    def __getitem__(self, i):
+
 
         try:
             data = pd.read_csv(f'dataset/cust_{i}.csv')
         except:
-            return zeros[0][0], zeros[1][0]
+            return self.return_zeros()
 
 
         length = data.shape[0]
@@ -150,10 +159,10 @@ class CustomDataset(torch.utils.data.Dataset):
             except ValueError as ve:
                 print(ve)
                 print(f'error in file: dataset/cust_{i}.csv')
-                return zeros[0][0], zeros[1][0]
+                return self.return_zeros()
 
 
-        return zeros[0][0], zeros[1][0]
+        return self.return_zeros()
 
 
 class CustomDataLoader(DataLoader):
