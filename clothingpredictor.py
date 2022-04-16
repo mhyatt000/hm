@@ -130,6 +130,9 @@ def main():
     args = get_args()
 
     net = ClothingPredictor()
+    if torch.cuda.device_count() > 1:
+        net = Parallel(net)
+
     print(net)
 
     net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
@@ -145,8 +148,6 @@ def main():
         except:
             pass
 
-    if torch.cuda.device_count() > 1:
-        net = Parallel(net)
 
 
     # train
