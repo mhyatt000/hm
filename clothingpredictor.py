@@ -101,14 +101,17 @@ def train(net, train_iter):
             optimizer.step()
 
             # accuracy ?
-            
+            acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
+            acc = int(acc) / (Y.shape[0]*Y.shape[1])
 
             # losses.append(l.sum())
 
             if i%100:
                 pbar.set_postfix({
-                    f'batch' : f'{i+1}/{len_iter}',
-                    f'loss' : f'{round(float(l.sum()),4)}',
+                    'batch' : f'{i+1}/{len_iter}',
+                    'loss' : f'{round(float(l.sum()),4)}',
+                    'epoch' : f'{epoch+1}/{num_epochs}',
+                    'accuracy' : acc,
                 })
             pbar.update(1)
 
