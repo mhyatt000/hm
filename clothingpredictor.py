@@ -62,7 +62,7 @@ class ClothingPredictor(torch.nn.Module):
         return output, state
 
 
-def train_new(net, train_iter, tgt_vocab):
+def train(net, train_iter, tgt_vocab):
 
     timer = time.perf_counter()
 
@@ -73,7 +73,7 @@ def train_new(net, train_iter, tgt_vocab):
     net.to(device)
     net.train()
 
-    loss = CrossEntropyLoss()
+    loss = nn.CrossEntropyLoss()
     losses = []
     pbar = tqdm(range(num_epochs), desc='Training ')
     for epoch in range(num_epochs):
@@ -107,43 +107,6 @@ def train_new(net, train_iter, tgt_vocab):
     print(f'loss: {round(losses[-1],4)}')
 
     return losses
-
-def train(net, train_iter):
-
-    timer = time.perf_counter()
-
-    num_epochs = net.args.num_epochs
-
-    device = net.device
-    net.to(device)
-
-    loss = nn.CrossEntropyLoss()
-    losses = []
-    for epoch in range(num_epochs):
-        print(f'\nepoch: {epoch+1} of {num_epochs}')
-
-        net.train()
-        for (features, target) in tqdm(train_iter):
-
-            optimizer.zero_grad()
-            X, Y = features.to(device), target.to(device)
-
-            fx = net(X)
-            l = loss(fx, Y)
-            l.mean().backward()
-            optimizer.step()
-
-            losses.append(l.mean())
-
-            # save it ... after batch cuz it takes a while
-            if net.args.save and l.mean() < min(losses):
-                torch.save(net.state_dict(), net.file)
-
-        print(f'loss: {l.mean()}')
-
-    timer = int(time.perf_counter() - timer)
-    print(f'Finished in {timer} seconds')
-    print(f'{len(train_iter.dataset) / timer:.1f} examples/sec on {str(device)}')
 
 
 def main():
