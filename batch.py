@@ -114,6 +114,11 @@ class CustomDataset(torch.utils.data.Dataset):
         length = data.shape[0]
         n, r = length // self.timesteps, length % self.timesteps
 
+        zeros = [
+            torch.zeros(size=(1,self.timesteps,18)),
+            torch.zeros(size=(1,self.timesteps,1))
+        ]
+
         if length >= self.timesteps:
 
             data = data.sort_values(by=["t_dat"])
@@ -126,8 +131,9 @@ class CustomDataset(torch.utils.data.Dataset):
             y = y.flatten()[:32]
 
             if x.shape[0] < 576:
-                print(x.shape)
-                quit()
+                return zeros[0][0], zeros[1][0]
+                'todo count how many zeros there are and drop them?'
+
 
             norm = lambda x: torch.nn.functional.normalize(x)
             x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
@@ -135,11 +141,15 @@ class CustomDataset(torch.utils.data.Dataset):
 
             '''ONLY RETURN FIRST BATCH FOR CUSTOMER RN'''
 
-        x = torch.zeros(size=(1,self.timesteps,18))
-        y = torch.zeros(size=(1,self.timesteps,1))
 
-        return x[0], y[0]
+        return zeros[0][0], zeros[1][0]
 
+
+def try_again(func, **kwargs):
+    try:
+        func()
+    except:
+        try_again(func)
 
 def main():
 
