@@ -109,10 +109,10 @@ class CustomDataset(torch.utils.data.Dataset):
         return customers.shape[0]
 
 
-    def return_zeros(self):
+    def return_zeros(self, i):
 
         self.z += 1
-        print(self.z)
+        print(f'{self.z} : dataset/cust_{i}.csv')
         zeros = [
             torch.zeros(size=(1,self.timesteps,18)),
             torch.zeros(size=(1,self.timesteps,1))
@@ -126,7 +126,7 @@ class CustomDataset(torch.utils.data.Dataset):
         try:
             data = pd.read_csv(f'dataset/cust_{i}.csv')
         except:
-            return self.return_zeros()
+            return self.return_zeros(i)
 
 
         length = data.shape[0]
@@ -159,10 +159,10 @@ class CustomDataset(torch.utils.data.Dataset):
             except ValueError as ve:
                 print(ve)
                 print(f'error in file: dataset/cust_{i}.csv')
-                return self.return_zeros()
+                return self.return_zeros(i)
 
 
-        return self.return_zeros()
+        return self.return_zeros(i)
 
 
 class CustomDataLoader(DataLoader):
