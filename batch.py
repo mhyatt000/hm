@@ -118,14 +118,12 @@ class CustomDataset(torch.utils.data.Dataset):
 
             data = data.sort_values(by=["t_dat"])
 
-            y = data["article_id"].to_numpy().astype(float)[:32]
-            x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)[:32*18]
+            y = data["article_id"].to_numpy().astype(float)
+            x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)
 
-            '''todo
-            get rid of remainders
-            note
-            avg 23 timesteps per cust
-            '''
+            # take 1st 32 steps only rn
+            x = x.flatten()[:32*18]
+            y = y.flatten()[:32]
 
             norm = lambda x: torch.nn.functional.normalize(x)
             x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
