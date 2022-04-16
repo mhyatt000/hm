@@ -142,7 +142,8 @@ class CustomDataset(torch.utils.data.Dataset):
 def main():
 
     dataset = CustomDataset(timesteps=32, build=False)
-    print(dataset[0])
+    x,y = dataset[0]
+    print(x.shape, y.shape)
     # print(len(data))
     #
     # print(data.x.shape)
