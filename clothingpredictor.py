@@ -116,7 +116,7 @@ def train(net, train_iter):
                         'epoch' : f'{epoch+1}/{num_epochs}',
                         'accuracy' : acc,
                     })
-            pbar.update(1)
+                pbar.update(1)
 
 
     # save it ... after all of training
