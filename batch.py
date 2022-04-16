@@ -140,11 +140,15 @@ class CustomDataset(torch.utils.data.Dataset):
 
         with ThreadPoolExecutor() as executor:
             files = list(tqdm(executor.map(is_valid, range(len(self)))))
-            val = sum(files)
+            val = sum([i for i in files if i])
+            non = sum([1 for i in files if i is None])
             length = len(files)
 
         print(f'length == len : {length==len(self)}')
         print(f'{val/len(self)} % valid')
+        print()
+        print('val, inv, none')
+        print(val, length-val, non)
 
 
 class CustomDataLoader(DataLoader):
