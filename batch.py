@@ -127,25 +127,30 @@ class CustomDataset(torch.utils.data.Dataset):
 
         if length >= self.timesteps:
 
-            data = data.sort_values(by=["t_dat"])
+            try:
+                data = data.sort_values(by=["t_dat"])
 
-            y = data["article_id"].to_numpy().astype(float)
-            x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)
+                y = data["article_id"].to_numpy().astype(float)
+                x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)
 
-            # take 1st 32 steps only rn
-            x = x.flatten()[:32*18]
-            y = y.flatten()[:32]
+                # take 1st 32 steps only rn
+                x = x.flatten()[:32*18]
+                y = y.flatten()[:32]
 
-            if x.shape[0] < 576:
+                if x.shape[0] < 576:
+                    return zeros[0][0], zeros[1][0]
+                    'todo count how many zeros there are and drop them?'
+
+
+                norm = lambda x: torch.nn.functional.normalize(x)
+                x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
+                y = norm(torch.tensor(y.reshape(-1,self.timesteps,1)))
+
+                '''ONLY RETURN FIRST BATCH FOR CUSTOMER RN'''
+            except ValueError as ve:
+                print(ve)
+                print(f'error in file: dataset/cust_{i}.csv')
                 return zeros[0][0], zeros[1][0]
-                'todo count how many zeros there are and drop them?'
-
-
-            norm = lambda x: torch.nn.functional.normalize(x)
-            x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
-            y = norm(torch.tensor(y.reshape(-1,self.timesteps,1)))
-
-            '''ONLY RETURN FIRST BATCH FOR CUSTOMER RN'''
 
 
         return zeros[0][0], zeros[1][0]

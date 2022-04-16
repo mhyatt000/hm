@@ -100,13 +100,14 @@ def train(net, train_iter):
             nn.utils.clip_grad_norm_(net.parameters(), 1)
             optimizer.step()
 
-            # accuracy ?
-            acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
-            acc = int(acc) / (Y.shape[0]*Y.shape[1])
+            if not i%100: # display
 
-            # losses.append(l.sum())
+                acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
+                acc = int(acc) / (Y.shape[0]*Y.shape[1])
 
-            if not i%100:
+
+
+
                 pbar.set_postfix({
                     'batch' : f'{i+1}/{len_iter}',
                     'loss' : f'{round(float(l.sum()),4)}',
