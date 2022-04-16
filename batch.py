@@ -118,7 +118,7 @@ class CustomDataset(torch.utils.data.Dataset):
             data = pd.read_csv(f'dataset/cust_{i}.csv')
         except:
             return zeros[0][0], zeros[1][0]
-            
+
 
         length = data.shape[0]
         n, r = length // self.timesteps, length % self.timesteps
@@ -164,6 +164,7 @@ def main():
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
     for i in range(10):
+        print(f'trial {i}')
         train_features, train_labels = next(iter(dataloader))
         print(f"Feature batch shape: {train_features.size()}")
         print(f"Labels batch shape: {train_labels.size()}")
