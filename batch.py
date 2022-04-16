@@ -27,10 +27,10 @@ class CustomDataset(torch.utils.data.Dataset):
     def __init__(self, timesteps=16, build=False):
 
         self.timesteps = timesteps
-        args = get_args()
 
         if build:
 
+            args = get_args()
             print('reading dataset...')
             input = args.input if args.input else [print('need input -i'),quit()]
             data = pd.read_csv(input) # data[data.columns[1:]].to_csv(input, index=False)
