@@ -73,12 +73,13 @@ def train(net, train_iter):
     net.to(device)
     net.train()
 
+    len_iter = len(train_iter)
     loss = nn.CrossEntropyLoss()
     losses = []
-    pbar = tqdm(range(num_epochs), desc='Training ')
+
+    pbar = tqdm(total=num_epochs*len_iter, desc='Training ')
     for epoch in range(num_epochs):
 
-        len_iter = len(train_iter)
         for i, batch in enumerate(train_iter):
 
             optimizer.zero_grad()
@@ -101,9 +102,8 @@ def train(net, train_iter):
 
             losses.append(l.sum())
             pbar.set_postfix_str(f'batch : {i+1}/{len_iter}')
-
-        pbar.update(1)
-        pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
+            pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
+            pbar.update(1)
 
 
     # save it ... after all of training
