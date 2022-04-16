@@ -109,15 +109,21 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, i):
 
-        data = pd.read_csv(f'dataset/cust_{i}.csv')
-
-        length = data.shape[0]
-        n, r = length // self.timesteps, length % self.timesteps
-
         zeros = [
             torch.zeros(size=(1,self.timesteps,18)),
             torch.zeros(size=(1,self.timesteps,1))
         ]
+
+        try:
+            data = pd.read_csv(f'dataset/cust_{i}.csv')
+        except:
+            return zeros[0][0], zeros[1][0]
+            
+
+        length = data.shape[0]
+        n, r = length // self.timesteps, length % self.timesteps
+
+
 
         if length >= self.timesteps:
 
