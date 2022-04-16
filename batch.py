@@ -164,7 +164,7 @@ class CustomDataset(torch.utils.data.Dataset):
                 return self.return_zeros(i)
 
         print('too small')
-        return self.return_zeros(i)
+        return self.__getitem__(i+1)
 
 
 class CustomDataLoader(DataLoader):
