@@ -151,6 +151,11 @@ class CustomDataset(torch.utils.data.Dataset):
         return zeros[0][0], zeros[1][0]
 
 
+class CustomDataLoader(DataLoader):
+
+    def __init__(self, batch_size=64, shuffle=True):
+        super().__init__(CustomDataset(timesteps=32, build=False), **kwargs)
+
 def try_again(func, **kwargs):
     try:
         func()
@@ -161,7 +166,8 @@ def main():
 
     dataset = CustomDataset(timesteps=32, build=False)
 
-    dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+    dataloader = CustomDataLoader()
 
     for i in range(10):
         print(f'trial {i}')
