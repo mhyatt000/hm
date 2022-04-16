@@ -104,8 +104,8 @@ def train(net, train_iter):
 
                 if True: # not i%100: # display
 
-                    acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
-                    acc = int(acc) / (Y.shape[0]*Y.shape[1])
+                    correct = float(torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1)))
+                    acc = correct / (Y.shape[0]*Y.shape[1])
 
 
 
@@ -115,6 +115,7 @@ def train(net, train_iter):
                         'loss' : f'{round(float(l.sum()),4)}',
                         'epoch' : f'{epoch+1}/{num_epochs}',
                         'accuracy' : acc,
+                        'correct' : correct,
                     })
                 pbar.update(1)
 
