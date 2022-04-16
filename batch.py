@@ -22,7 +22,7 @@ def get_args():
 
 class CustomDataset(torch.utils.data.Dataset):
 
-    '''split csvs with natural language d1 .. d15 csv''' 
+    '''split csvs with natural language d1 .. d15 csv'''
 
     def __init__(self, timesteps=16, build=False):
 
@@ -32,7 +32,7 @@ class CustomDataset(torch.utils.data.Dataset):
         if build:
 
             print('reading dataset...')
-            input = 'docs/data.csv' if not args.input else args.input
+            input = args.input if args.input else [print('need input -i'),quit()]
             data = pd.read_csv(input) # data[data.columns[1:]].to_csv(input, index=False)
 
             print('split data... ETA 70 hrs')
@@ -103,8 +103,9 @@ class CustomDataset(torch.utils.data.Dataset):
     #     self.transactions[id] = (None,None)
 
 
-    # def __len__(self):
-    #     return self.y.shape[0]
+    def __len__(self):
+        customers = pd.read_csv('docs/customers.csv')
+        return customers.shape[0]
 
     def __getitem__(self, i):
 
@@ -140,7 +141,8 @@ class CustomDataset(torch.utils.data.Dataset):
 
 def main():
 
-    data = CustomDataset(timesteps=32, build=False)
+    dataset = CustomDataset(timesteps=32, build=False)
+    print(dataset[0])
     # print(len(data))
     #
     # print(data.x.shape)

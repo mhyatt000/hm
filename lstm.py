@@ -38,29 +38,26 @@ def get_args():
     return args
 
 
-class Environment():
-    'environment variables to be passed around'
+class ClothingPredictor(torch.nn.Module):
 
-    def __init__(self):
-        pass
+    def __init__(self, dropout=0, **kwargs):
+        super(ClothingPredictor, self).__init__()
 
+        self.lstm = torch.nn.LSTM(input_size=18,hidden_size=256,num_layers=3, dropout=dropout)
+        self.dense = torch.nn.Linear(256 , 105542)
 
-class RNNModel(torch.nn.Module):
+    def forward(self, X, state=None, *args):
+        # In RNN models, the first axis corresponds to time steps
+        X = X.permute(1, 0, 2)
+        # When state is not mentioned, it defaults to zeros
+        output, state = self.lstm(X)
 
-    def __init__(self):
-        super(RNNModel, self).__init__()
+        output = self.dense(output)
+        # `output` shape: (`num_steps`, `batch_size`, `num_hiddens`)
+        # `state` shape: (`num_layers`, `batch_size`, `num_hiddens`)
+        # state[-1] is the only useful one
+        return output, state
 
-        self.rnn = torch.nn.LSTM(input_size=18,hidden_size=256,num_layers=3)
-
-        self.hidden = torch.nn.Linear(256 , 512)
-        self.out = torch.nn.Linear(512 , 105542)
-
-    def forward(self, x):
-        print('test')
-        out, hidden_ = self.rnn(input)
-        print('test')
-        out = self.out(self.linear(out))
-        return out
 
 
 def train(net, train_iter, optimizer, *, env):
@@ -105,13 +102,12 @@ def main():
 
         args = get_args()
 
-        env = Environment()
-        env.file = __file__.split('/')[-1].split('.')[0] + '.pt'
-        env.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        env.args = args
-
-        net = RNNModel()
+        net = ClothingPredictor()
         print(net)
+
+        net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
+        net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        net.args = args
 
         train_iter = DataLoader(training_data, batch_size=64, shuffle=True)
 
@@ -124,7 +120,6 @@ def main():
         if torch.cuda.device_count() > 1:
             net = Parallel(net)
 
-        train_iter = torch.rand(size=(64,2,32,18))
 
         # train
         optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
@@ -136,11 +131,28 @@ def main():
         if args.eval:
             print('evaluation...')
 
-            n, imgs = 4, []
-            for i in tqdm(range(n)):
-                pass
+            train_iter = torch.rand(size=(64,32,18))
+            cust_iter = torch.rand(size=(1,32,18))
 
-            print('predictions here...')
+            print(cust_iter.shape)
+
+            x, state = net(cust_iter)
+            print(x.shape, state[-1].shape)
+            print(x[-1].shape)
+
+            print('predicted items:',[i.argmax() for i in x[-1]])
+
+            net.eval()
+            # load in the data for a customer somehow
+            print('\n\n\n')
+            print(f'customer _____')
+            for i in range(12):
+                print(f'iter: {i+1}')
+
+                pred, state = net(cust_iter)
+                pred_item = pred[-1]
+                print(f'predicted article: {int(pred_item.argmax())}')
+                quit()
 
 
 if __name__ == '__main__':
