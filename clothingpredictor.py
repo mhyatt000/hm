@@ -63,9 +63,10 @@ class ClothingPredictor(torch.nn.Module):
         # state[-1] is the only useful one
         return output, state
 
-class CustomCELoss():
+class CustomCELoss(nn.CrossEntropyLoss):
 
     def __init__(self):
+        super().__init__()
         pass
 
     def __call__(self, src,tgt):
