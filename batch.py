@@ -109,7 +109,7 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, i):
 
-        data = pd.read_csv(f'dataset/cust{i}.csv')
+        data = pd.read_csv(f'dataset/cust_{i}.csv')
 
         length = data.shape[0]
         n, r = length // self.timesteps, length % self.timesteps
