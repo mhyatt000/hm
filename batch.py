@@ -153,8 +153,9 @@ class CustomDataset(torch.utils.data.Dataset):
 
 class CustomDataLoader(DataLoader):
 
-    def __init__(self, batch_size=64, shuffle=True):
-        super().__init__(CustomDataset(timesteps=32, build=False), **kwargs)
+    def __init__(self):
+        super().__init__(CustomDataset(timesteps=32, build=False),
+            batch_size=64, shuffle=True)
 
 def try_again(func, **kwargs):
     try:
