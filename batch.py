@@ -112,7 +112,7 @@ class CustomDataset(torch.utils.data.Dataset):
     def return_zeros(self, i):
 
         self.z += 1
-        print(f'zeros {self.z} : dataset/cust_{i}.csv')
+        print(f'{self.z} : dataset/cust_{i}.csv')
         zeros = [
             torch.zeros(size=(1,self.timesteps,18)),
             torch.zeros(size=(1,self.timesteps,1))
@@ -122,18 +122,17 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, i):
 
+        file = f'dataset/cust_{i}.csv'
 
         try:
-            data = pd.read_csv(f'dataset/cust_{i}.csv')
+            data = pd.read_csv(file)
         except:
-            print('file doesnt exist')
-            return self.return_zeros(i)
-
+            self.z += 1
+            print(f'{self.z} : file doesnt exist', file)
+            return self.__getitem__(i+1)
 
         length = data.shape[0]
         n, r = length // self.timesteps, length % self.timesteps
-
-
 
         if length >= self.timesteps:
 
@@ -148,8 +147,9 @@ class CustomDataset(torch.utils.data.Dataset):
                 y = y.flatten()[:32]
 
                 if x.shape[0] < 576:
-                    print('less than 576')
-                    return self.return_zeros(i)
+                    self.z += 1
+                    print(f'{self.z} : less than 576', file)
+                    return self.__getitem__(i+1)
                     'todo count how many zeros there are and drop them?'
 
 
@@ -161,9 +161,10 @@ class CustomDataset(torch.utils.data.Dataset):
             except ValueError as ve:
                 print(ve)
                 print(f'error in file: dataset/cust_{i}.csv')
-                return self.return_zeros(i)
+                return self.__getitem__(i+1)
 
-        print('too small')
+        self.z += 1
+        print(f'{self.z} : too small', file)
         return self.__getitem__(i+1)
 
 
