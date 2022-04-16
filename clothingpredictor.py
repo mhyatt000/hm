@@ -18,6 +18,8 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 
+from batch import CustomDataLoader
+
 def get_args():
 
     ap = ArgumentParser(description='args for hw4')
@@ -59,14 +61,59 @@ class ClothingPredictor(torch.nn.Module):
         return output, state
 
 
-
-def train(net, train_iter, optimizer, *, env):
+def train_new(net, train_iter, tgt_vocab):
 
     timer = time.perf_counter()
 
-    num_epochs = env.args.num_epochs
+    num_epochs = net.args.num_epochs
+    optimizer = net.optimizer
 
-    device = env.device
+    device = net.device
+    net.to(device)
+    net.train()
+
+    loss = CrossEntropyLoss()
+    losses = []
+    pbar = tqdm(range(num_epochs), desc='Training ')
+    for epoch in range(num_epochs):
+
+        for batch in train_iter:
+
+            optimizer.zero_grad()
+
+            X, Y = [x.to(device) for x in batch]
+
+            Y_hat, _ = net(X)
+            l = loss(Y_hat, Y, Y_valid_len)
+            l.sum().backward()
+
+            nn.utils.clip_grad_norm_(net.parameters(), 1)
+            optimizer.step()
+
+            losses.append(l.sum())
+        pbar.update(1)
+        pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
+
+
+    # save it ... after all of training
+    if net.args.save:
+        torch.save(net.state_dict(), net.file)
+
+    # print(f'loss: {l.sum()}')
+
+    timer = int(time.perf_counter() - timer)
+    print(f'Finished in {timer} seconds')
+    print(f'loss: {round(losses[-1],4)}')
+
+    return losses
+
+def train(net, train_iter):
+
+    timer = time.perf_counter()
+
+    num_epochs = net.args.num_epochs
+
+    device = net.device
     net.to(device)
 
     loss = nn.CrossEntropyLoss()
@@ -88,8 +135,8 @@ def train(net, train_iter, optimizer, *, env):
             losses.append(l.mean())
 
             # save it ... after batch cuz it takes a while
-            if env.args.save and l.mean() < min(losses):
-                torch.save(net.state_dict(), env.file)
+            if net.args.save and l.mean() < min(losses):
+                torch.save(net.state_dict(), net.file)
 
         print(f'loss: {l.mean()}')
 
@@ -108,12 +155,13 @@ def main():
         net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
         net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         net.args = args
+        net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
 
-        train_iter = DataLoader(training_data, batch_size=64, shuffle=True)
+        train_iter = CustomDataLoader()
 
         if args.load:
             try:
-                net.load_state_dict(torch.load(env.file))
+                net.load_state_dict(torch.load(net.file))
             except:
                 pass
 
@@ -122,10 +170,9 @@ def main():
 
 
         # train
-        optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
 
         if args.train:
-            train(net, train_iter, optimizer, env=env)
+            train(net, train_iter)
 
         # do some predictions
         if args.eval:
