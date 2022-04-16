@@ -82,38 +82,40 @@ def train(net, train_iter):
 
         for i, batch in enumerate(train_iter):
 
-            optimizer.zero_grad()
+            while True:
 
-            X, Y = [x.to(device) for x in batch]
+                optimizer.zero_grad()
 
-            Y_hat, _ = net(X)
+                X, Y = [x.to(device) for x in batch]
 
-            # reshape Y to match predictions
-            Y = Y.to(torch.int64)
-            Y = F.one_hot(torch.flatten(Y.permute(1,0,2)), num_classes=105542)
-            Y = torch.reshape(Y, (Y_hat.shape)).to(torch.float32)
+                Y_hat, _ = net(X)
 
-            # backprop
-            l = loss(Y_hat, Y)
-            l.sum().backward()
+                # reshape Y to match predictions
+                Y = Y.to(torch.int64)
+                Y = F.one_hot(torch.flatten(Y.permute(1,0,2)), num_classes=105542)
+                Y = torch.reshape(Y, (Y_hat.shape)).to(torch.float32)
 
-            nn.utils.clip_grad_norm_(net.parameters(), 1)
-            optimizer.step()
+                # backprop
+                l = loss(Y_hat, Y)
+                l.sum().backward()
 
-            if not i%100: # display
+                nn.utils.clip_grad_norm_(net.parameters(), 1)
+                optimizer.step()
 
-                acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
-                acc = int(acc) / (Y.shape[0]*Y.shape[1])
+                if True: # not i%100: # display
+
+                    acc = torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1))
+                    acc = int(acc) / (Y.shape[0]*Y.shape[1])
 
 
 
 
-                pbar.set_postfix({
-                    'batch' : f'{i+1}/{len_iter}',
-                    'loss' : f'{round(float(l.sum()),4)}',
-                    'epoch' : f'{epoch+1}/{num_epochs}',
-                    'accuracy' : acc,
-                })
+                    pbar.set_postfix({
+                        'batch' : f'{i+1}/{len_iter}',
+                        'loss' : f'{round(float(l.sum()),4)}',
+                        'epoch' : f'{epoch+1}/{num_epochs}',
+                        'accuracy' : acc,
+                    })
             pbar.update(1)
 
 
