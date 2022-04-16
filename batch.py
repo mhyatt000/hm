@@ -30,7 +30,8 @@ class CustomDataset(torch.utils.data.Dataset):
         self.z = 0 # number of times returning zeros
 
         customers = pd.read_csv('docs/customers.csv')
-        self.len = customers.shape[0]
+        self.length = customers.shape[0]
+        print(type(self.length))
 
 
         if build:
@@ -58,58 +59,8 @@ class CustomDataset(torch.utils.data.Dataset):
                     temp.to_csv(f'dataset/cust_{id}.csv', index=False)
                     bar.update(1)
 
-        # print('reading dataset...')
-        # data = pd.read_csv('docs/data.csv')
-        # # tensor = torch.Tensor(data.values)
-        # print(f'Finished in{round(time.perf_counter() - timer)} secs')
-        #
-        # print('building customer list... ETA 20 min')
-        # customers = set(data["customer_id"].tolist())
-        # col = data.columns
-        # self.transactions = {cust : pd.DataFrame({c:[] for c in col}) for cust in tqdm(customers)}
-        #
-        # with ProcessPoolExecutor() as executor:
-
-        #     print('building transaction batches...')
-        #     tqdm(executor.map(self._batch_customer, customers), total=len(customers))
-        #
-        # print('normalizing torch tensors...')
-        # y, x = np.array([]), np.array([])
-        # for id in customers:
-        #     xi,yi = transactions[id]
-        #
-        #     if xi or yi: # transactions for index 0? idk
-        #         x = np.append(x,xi)
-        #         y = np.append(y,yi)
-        #
-        # norm = lambda x: torch.nn.functional.normalize(x)
-        # self.x = norm(torch.tensor(x.reshape(-1,32,18)))
-        # self.y = norm(torch.tensor(y.reshape(-1,32,1)))
-
-
-    # def _batch_customer(self, id):
-    #     '''helper for parallel batching'''
-    #
-    #     temp = self.transactions[self.transactions["customer_id"] == id]
-    #
-    #     timesteps = 32
-    #     length = temp.shape[0]
-    #     n, r = length // timesteps, length % timesteps
-    #
-    #     if length >= timesteps:
-    #
-    #         temp = temp.sort_values(by=["t_dat"])
-    #
-    #         yi = temp["article_id"].to_numpy().astype(float)
-    #         xi = temp.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)
-    #
-    #         self.transactions[id] = (xi,yi)
-    #
-    #     self.transactions[id] = (None,None)
-
-
     def __len__(self):
-        self.len
+        return self.length
 
 
     def return_zeros(self, i):
@@ -190,7 +141,9 @@ def main():
 
     dataset = CustomDataset(build=False)
 
+    print(len(dataset))
     for i in range(len(dataset)):
+        print(f'item {i}')
         print(dataset[i])
 
     quit()
