@@ -45,8 +45,9 @@ class ClothingPredictor(torch.nn.Module):
     def __init__(self, dropout=0, **kwargs):
         super(ClothingPredictor, self).__init__()
 
-        self.lstm = torch.nn.LSTM(input_size=18,hidden_size=256,num_layers=3, dropout=dropout)
-        self.dense = torch.nn.Linear(256 , 105542)
+        self.lstm = nn.LSTM(input_size=18,hidden_size=256,num_layers=3, dropout=dropout)
+        self.dense = nn.Linear(256 , 105542)
+        self.activation = nn.Softmax(dim=-1)
 
     def forward(self, X, state=None, *args):
         # In RNN models, the first axis corresponds to time steps
@@ -54,7 +55,7 @@ class ClothingPredictor(torch.nn.Module):
         # When state is not mentioned, it defaults to zeros
         output, state = self.lstm(X)
 
-        output = self.dense(output)
+        output = self.activation(self.dense(output))
         # `output` shape: (`num_steps`, `batch_size`, `num_hiddens`)
         # `state` shape: (`num_layers`, `batch_size`, `num_hiddens`)
         # state[-1] is the only useful one
@@ -84,7 +85,7 @@ def train_new(net, train_iter, tgt_vocab):
             X, Y = [x.to(device) for x in batch]
 
             Y_hat, _ = net(X)
-            l = loss(Y_hat, Y, Y_valid_len)
+            l = loss(Y_hat, Y)
             l.sum().backward()
 
             nn.utils.clip_grad_norm_(net.parameters(), 1)
@@ -177,6 +178,9 @@ def main():
         # do some predictions
         if args.eval:
             print('evaluation...')
+
+            print('no eval yet')
+            quit()
 
             train_iter = torch.rand(size=(64,32,18))
             cust_iter = torch.rand(size=(1,32,18))
