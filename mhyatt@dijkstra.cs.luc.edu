@@ -31,6 +31,7 @@ class CustomDataset(torch.utils.data.Dataset):
 
         customers = pd.read_csv('docs/customers.csv')
         self.length = customers.shape[0]
+        print(type(self.length))
 
 
         if build:
@@ -123,10 +124,9 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def count_valid_files(self):
 
-        self.pbar = tqdm(total=len(self))
         def is_valid(i):
             file = f'dataset/cust_{i}.csv'
-            self.pbar.step(1)
+
             try:
                 data = pd.read_csv(file)
                 length = data.shape[0]
