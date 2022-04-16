@@ -145,7 +145,7 @@ def main():
     x,y = dataset[0]
     print(x.shape, y.shape)
 
-    dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
     for i in range(10):
         train_features, train_labels = next(iter(dataloader))
