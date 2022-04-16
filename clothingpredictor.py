@@ -106,7 +106,7 @@ def train(net, train_iter):
 
             # losses.append(l.sum())
 
-            if i%100:
+            if not i%100:
                 pbar.set_postfix({
                     'batch' : f'{i+1}/{len_iter}',
                     'loss' : f'{round(float(l.sum()),4)}',
