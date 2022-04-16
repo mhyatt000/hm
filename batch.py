@@ -118,8 +118,8 @@ class CustomDataset(torch.utils.data.Dataset):
 
             data = data.sort_values(by=["t_dat"])
 
-            y = data["article_id"].to_numpy().astype(float)
-            x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)
+            y = data["article_id"].to_numpy().astype(float)[:32]
+            x = data.drop(labels=["t_dat", "article_id"], axis=1).to_numpy().astype(float)[:32*18]
 
             '''todo
             get rid of remainders
@@ -142,8 +142,6 @@ class CustomDataset(torch.utils.data.Dataset):
 def main():
 
     dataset = CustomDataset(timesteps=32, build=False)
-    x,y = dataset[0]
-    print(x.shape, y.shape)
 
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
