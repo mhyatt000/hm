@@ -33,8 +33,6 @@ def get_args():
 
     args = ap.parse_args()
 
-    print(args.load)
-
     if not args.num_epochs:
         args.num_epochs = 5
         print('default 5 epochs')
@@ -63,19 +61,6 @@ class ClothingPredictor(torch.nn.Module):
         # state[-1] is the only useful one
         return output, state
 
-class CustomCELoss(nn.CrossEntropyLoss):
-
-    def __init__(self):
-        super().__init__()
-        pass
-
-    def __call__(self, src,tgt):
-
-        src = torch.reshape(torch.argmax(src.permute(1,0,2), dim=-1), (tgt.shape))
-        score = torch.sum(torch.eq(src,tgt))
-        num = reduce(lambda x,y: x*y, tgt.shape, 1)
-        return score / num
-
 
 def train(net, train_iter):
 
@@ -93,7 +78,8 @@ def train(net, train_iter):
     pbar = tqdm(range(num_epochs), desc='Training ')
     for epoch in range(num_epochs):
 
-        for batch in train_iter:
+
+        for i, batch in enumerate(train_iter):
 
             optimizer.zero_grad()
 
@@ -101,10 +87,12 @@ def train(net, train_iter):
 
             Y_hat, _ = net(X)
 
-            Y = F.one_hot(Y).permute()
-            # Y_hat = torch.reshape(torch.argmax(Y_hat.permute(1,0,2), dim=-1), (Y.shape))
+            # reshape Y to match predictions
+            Y = Y.to(torch.int64)
+            Y = F.one_hot(torch.flatten(Y.permute(1,0,2)), num_classes=105542)
+            Y = torch.reshape(Y, (Y_hat.shape)).to(torch.float32)
 
-
+            # backprop
             l = loss(Y_hat, Y)
             l.sum().backward()
 
@@ -112,6 +100,8 @@ def train(net, train_iter):
             optimizer.step()
 
             losses.append(l.sum())
+            pbar.set_postfix_str(f'batch : {i+1}/{net.batch_size}')
+
         pbar.update(1)
         pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
 
@@ -139,23 +129,24 @@ def main():
 
     print(net)
 
+    # hparam
     net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
     net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net.args = args
     net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
+    net.batch_size = 64
 
-    train_iter = CustomDataLoader()
+    # try to load data
+    train_iter = CustomDataLoader(batch_size=net.batch_size)
 
+    # try to load weights
     if args.load:
         try:
             net.load_state_dict(torch.load(net.file))
         except:
-            pass
-
-
+            pass # maybe set a default?? xavier_init ?
 
     # train
-
     if args.train:
         train(net, train_iter)
 
