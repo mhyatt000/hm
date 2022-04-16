@@ -89,7 +89,6 @@ def train(net, train_iter):
     net.train()
 
     loss = nn.CrossEntropyLoss()
-    loss = CustomCELoss()
     losses = []
     pbar = tqdm(range(num_epochs), desc='Training ')
     for epoch in range(num_epochs):
@@ -101,7 +100,11 @@ def train(net, train_iter):
             X, Y = [x.to(device) for x in batch]
 
             Y_hat, _ = net(X)
+
+            Y = F.one_hot(Y).permute()
             # Y_hat = torch.reshape(torch.argmax(Y_hat.permute(1,0,2), dim=-1), (Y.shape))
+
+
             l = loss(Y_hat, Y)
             l.sum().backward()
 
