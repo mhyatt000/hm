@@ -2,7 +2,7 @@ import functools
 import os
 import time
 from argparse import ArgumentParser
-
+from functools import reduce
 import torch
 import torchvision
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -22,7 +22,7 @@ from batch import CustomDataLoader
 
 def get_args():
 
-    ap = ArgumentParser(description='args for hw4')
+    ap = ArgumentParser()
 
     ap.add_argument('-s', '--save', action='store_true')
     ap.add_argument('-l', '--load', action='store_true')
@@ -32,6 +32,8 @@ def get_args():
     ap.add_argument('-n', '--num_epochs', type=int)
 
     args = ap.parse_args()
+
+    print(args.load)
 
     if not args.num_epochs:
         args.num_epochs = 5
@@ -61,8 +63,20 @@ class ClothingPredictor(torch.nn.Module):
         # state[-1] is the only useful one
         return output, state
 
+class CustomCELoss():
 
-def train(net, train_iter, tgt_vocab):
+    def __init__(self):
+        pass
+
+    def __call__(self, src,tgt):
+
+        src = torch.reshape(torch.argmax(src.permute(1,0,2), dim=-1), (tgt.shape))
+        score = torch.sum(torch.eq(src,tgt))
+        num = reduce(lambda x,y: x*y, tgt.shape, 1)
+        return score / num
+
+
+def train(net, train_iter):
 
     timer = time.perf_counter()
 
@@ -74,6 +88,7 @@ def train(net, train_iter, tgt_vocab):
     net.train()
 
     loss = nn.CrossEntropyLoss()
+    loss = CustomCELoss()
     losses = []
     pbar = tqdm(range(num_epochs), desc='Training ')
     for epoch in range(num_epochs):
@@ -85,6 +100,7 @@ def train(net, train_iter, tgt_vocab):
             X, Y = [x.to(device) for x in batch]
 
             Y_hat, _ = net(X)
+            # Y_hat = torch.reshape(torch.argmax(Y_hat.permute(1,0,2), dim=-1), (Y.shape))
             l = loss(Y_hat, Y)
             l.sum().backward()
 
@@ -111,62 +127,62 @@ def train(net, train_iter, tgt_vocab):
 
 def main():
 
-        args = get_args()
+    args = get_args()
 
-        net = ClothingPredictor()
-        print(net)
+    net = ClothingPredictor()
+    print(net)
 
-        net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
-        net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        net.args = args
-        net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
+    net.file = __file__.split('/')[-1].split('.')[0] + '.pt'
+    net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net.args = args
+    net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
 
-        train_iter = CustomDataLoader()
+    train_iter = CustomDataLoader()
 
-        if args.load:
-            try:
-                net.load_state_dict(torch.load(net.file))
-            except:
-                pass
+    if args.load:
+        try:
+            net.load_state_dict(torch.load(net.file))
+        except:
+            pass
 
-        if torch.cuda.device_count() > 1:
-            net = Parallel(net)
+    if torch.cuda.device_count() > 1:
+        net = Parallel(net)
 
 
-        # train
+    # train
 
-        if args.train:
-            train(net, train_iter)
+    if args.train:
+        train(net, train_iter)
 
-        # do some predictions
-        if args.eval:
-            print('evaluation...')
+    # do some predictions
+    if args.eval:
+        print('evaluation...')
 
-            print('no eval yet')
+        print('no eval yet')
+        quit()
+
+        train_iter = torch.rand(size=(64,32,18))
+        cust_iter = torch.rand(size=(1,32,18))
+
+        print(cust_iter.shape)
+
+        x, state = net(cust_iter)
+        print(x.shape, state[-1].shape)
+        print(x[-1].shape)
+
+        print('predicted items:',[i.argmax() for i in x[-1]])
+
+        net.eval()
+        # load in the data for a customer somehow
+        print('\n\n\n')
+        print(f'customer _____')
+        for i in range(12):
+            print(f'iter: {i+1}')
+
+            pred, state = net(cust_iter)
+            pred_item = pred[-1]
+            print(f'predicted article: {int(pred_item.argmax())}')
             quit()
-
-            train_iter = torch.rand(size=(64,32,18))
-            cust_iter = torch.rand(size=(1,32,18))
-
-            print(cust_iter.shape)
-
-            x, state = net(cust_iter)
-            print(x.shape, state[-1].shape)
-            print(x[-1].shape)
-
-            print('predicted items:',[i.argmax() for i in x[-1]])
-
-            net.eval()
-            # load in the data for a customer somehow
-            print('\n\n\n')
-            print(f'customer _____')
-            for i in range(12):
-                print(f'iter: {i+1}')
-
-                pred, state = net(cust_iter)
-                pred_item = pred[-1]
-                print(f'predicted article: {int(pred_item.argmax())}')
-                quit()
 
 
 if __name__ == '__main__':
