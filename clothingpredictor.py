@@ -78,7 +78,7 @@ def train(net, train_iter):
     pbar = tqdm(range(num_epochs), desc='Training ')
     for epoch in range(num_epochs):
 
-
+        len_iter = len(train_iter)
         for i, batch in enumerate(train_iter):
 
             optimizer.zero_grad()
@@ -100,7 +100,7 @@ def train(net, train_iter):
             optimizer.step()
 
             losses.append(l.sum())
-            pbar.set_postfix_str(f'batch : {i+1}/{net.batch_size}')
+            pbar.set_postfix_str(f'batch : {i+1}/{len_iter}')
 
         pbar.update(1)
         pbar.set_postfix_str(f'loss : {round(float(l.sum()),4)}')
@@ -121,6 +121,7 @@ def train(net, train_iter):
 
 def main():
 
+    print()
     args = get_args()
 
     net = ClothingPredictor()
