@@ -125,6 +125,10 @@ class CustomDataset(torch.utils.data.Dataset):
             x = x.flatten()[:32*18]
             y = y.flatten()[:32]
 
+            if x.shape[0] < 576:
+                print(x.shape)
+                quit()
+
             norm = lambda x: torch.nn.functional.normalize(x)
             x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
             y = norm(torch.tensor(y.reshape(-1,self.timesteps,1)))
