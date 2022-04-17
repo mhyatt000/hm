@@ -169,6 +169,12 @@ class CustomDataLoader(DataLoader):
 
 def main():
 
+    ''' 8 timesteps
+    0.5324625723407047 % valid
+    val, inv, none
+    730528 641452 37878
+    '''
+
     dataset = CustomDataset(build=False, timesteps=8)
     # dataset.count_valid_files()
     # quit()

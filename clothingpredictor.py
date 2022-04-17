@@ -114,14 +114,11 @@ def train(net, train_iter):
 
                 nn.utils.clip_grad_norm_(net.parameters(), 1)
                 optimizer.step()
-
-                if True: # not i%100: # display
+                i+=1
+                if not i%100: # display
 
                     correct = float(torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1)))
                     acc = correct / (Y.shape[0]*Y.shape[1])
-
-
-
 
                     pbar.set_postfix({
                         'batch' : f'{i+1}/{len_iter}',
