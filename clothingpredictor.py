@@ -31,7 +31,7 @@ def get_args():
     ap.add_argument('-v', '--verbose', action='store_true')
     ap.add_argument('-n', '--num-epochs', type=int)
     ap.add_argument('-b', '--batch-size', type=int)
-    ap.add_argument('-s', '--steps', type=int)
+    ap.add_argument('--steps', type=int)
 
     args = ap.parse_args()
 
@@ -43,7 +43,7 @@ def get_args():
         print('default to 8 steps')
     if not args.batch_size:
         args.batch_size = 16
-        print('default to 8 steps')
+        print('default to batch_size 16')
 
     return args
 
