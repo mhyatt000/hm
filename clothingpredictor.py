@@ -84,7 +84,7 @@ def train(net, train_iter):
     len_iter = len(train_iter)
     ce_loss = nn.CrossEntropyLoss()
     ctc_loss = nn.CTCLoss()
-    adlog_loss = nn.AdaptiveLogSoftmaxWithLoss(n_classes=105542, in_features=18)
+    adalog_loss = nn.AdaptiveLogSoftmaxWithLoss(n_classes=105542, in_features=18)
     losses = []
 
     pbar = tqdm(total=num_epochs*len_iter, desc='Training ')
@@ -106,7 +106,7 @@ def train(net, train_iter):
                 Y = torch.reshape(Y, (Y_hat.shape)).to(torch.float32)
 
                 # backprop
-                l = ctc_loss(Y_hat, Y)
+                l = adalog_loss(Y_hat, Y)
                 l.sum().backward()
 
                 nn.utils.clip_grad_norm_(net.parameters(), 1)
