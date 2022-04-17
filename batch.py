@@ -178,6 +178,7 @@ def main():
         print(f'\nitem {i}')
         item = dataset[i]
         print(item[0].shape, item[1].shape)
+        print(item[0].dtype, item[1].dtype)
 
     quit()
 
