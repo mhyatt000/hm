@@ -43,8 +43,8 @@ def get_args():
         args.steps = 8
         print('default to 8 steps')
     if not args.batch_size:
-        args.batch_size = 16
-        print('default to batch_size 16')
+        args.batch_size = 64
+        print('default to batch_size 128')
 
     return args
 
@@ -93,8 +93,8 @@ def train(net, train_iter):
 
         for i, batch in enumerate(train_iter):
 
-            X, Y = torch.randn(32,64,18), torch.tensor([[random.randint(0,105542) for step in range(32)] for iter in range(64)]).float()
-            while True:
+            # X, Y = torch.randn(32,64,18), torch.tensor([[random.randint(0,105542) for step in range(32)] for iter in range(64)]).float()
+            # while True:
 
                 optimizer.zero_grad()
 
@@ -114,7 +114,7 @@ def train(net, train_iter):
 
                 nn.utils.clip_grad_norm_(net.parameters(), 1)
                 optimizer.step()
-                i+=1
+
                 if not i%100: # display
 
                     correct = float(torch.sum(torch.argmax(Y,dim=-1) == torch.argmax(Y_hat,dim=-1)))

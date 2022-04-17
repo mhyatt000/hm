@@ -74,35 +74,40 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, i):
 
-        i = i%8
-
-        file = f'dataset/cust_{i}.csv'
-
-        try:
-            data = pd.read_csv(file)
-        except:
-            self.z += 1
-            print(f'file doesnt exist', file)
-            # return self.__getitem__(i+1)
-            return self.return_zeros()
-
-        length = data.shape[0]
-        n, r = length // self.timesteps, length % self.timesteps
-
-        if length >= self.timesteps:
+        # i = i%8
+        while True:
+            file = f'dataset/cust_{i}.csv'
 
             try:
-                return self.pd_to_tensor(data)
+                data = pd.read_csv(file)
+            except:
+                print(f'file doesnt exist', file)
 
-            except Exception as ex:
-                print(ex)
-                print(f'error in file: dataset/cust_{i}.csv')
-                # return self.__getitem__(i+1)
-                return self.return_zeros()
+                i += 1
+                continue
+                # return self.return_zeros()
 
-        print(f'too small', file)
-        # return self.__getitem__(i+1)
-        return self.return_zeros()
+            length = data.shape[0]
+            n, r = length // self.timesteps, length % self.timesteps
+
+            if length >= self.timesteps:
+
+                try:
+                    return self.pd_to_tensor(data)
+
+                except Exception as ex:
+                    print(ex)
+                    print(f'error in file: dataset/cust_{i}.csv')
+                    # return self.__getitem__(i+1)
+                    # return self.return_zeros()
+                    i += 1
+                    continue
+
+            print(f'too small', file)
+            # return self.__getitem__(i+1)
+            # return self.return_zeros()
+            i += 1
+            continue
 
 
     def pd_to_tensor(self, data):
