@@ -93,12 +93,13 @@ def train(net, train_iter):
 
         for i, batch in enumerate(train_iter):
 
+            X, Y = torch.randn(32,64,18), torch.tensor([[random.randint(0,105542) for step in range(32)] for iter in range(64)]).float()
             while True:
 
                 optimizer.zero_grad()
 
-                X, Y = torch.randn(32,64,18), torch.tensor([[random.randint(0,105542) for step in range(32)] for iter in range(64)]).float()
-                X, Y = [x.to(device) for x in batch]
+                # X, Y = [x.to(device) for x in batch]
+                X,Y = X.to(device), Y.to(device)
 
                 Y_hat, _ = net(X)
 
