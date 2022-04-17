@@ -106,7 +106,7 @@ def train(net, train_iter):
                 Y = torch.reshape(Y, (Y_hat.shape)).to(torch.float32)
 
                 # backprop
-                l = loss(Y_hat, Y)
+                l = ctc_loss(Y_hat, Y)
                 l.sum().backward()
 
                 nn.utils.clip_grad_norm_(net.parameters(), 1)
