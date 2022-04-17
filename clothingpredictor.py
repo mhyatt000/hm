@@ -1,24 +1,25 @@
-import functools
-import os
-import time
 from argparse import ArgumentParser
+import functools
 from functools import reduce
-import torch
-import torchvision
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.nn.parallel import DataParallel as Parallel
-from torch import nn
-from torch.nn import functional as F
-from torchsummary import summary
-from tqdm import tqdm
+import os
+import random
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
+import torch
+from torch import nn
+from torch.nn import functional as F
+from torch.nn.parallel import DataParallel as Parallel
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data import DataLoader, Dataset
+from torchsummary import summary
+import torchvision
+from tqdm import tqdm
 
 from batch import CustomDataLoader
+
 
 def get_args():
 
@@ -96,6 +97,7 @@ def train(net, train_iter):
 
                 optimizer.zero_grad()
 
+                X, Y = torch.randn(32,64,18), torch.tensor([[random.randint(0,105542) for step in range(32)] for iter in range(64)]).float()
                 X, Y = [x.to(device) for x in batch]
 
                 Y_hat, _ = net(X)
