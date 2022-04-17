@@ -170,7 +170,7 @@ def try_again(func, **kwargs):
 
 def main():
 
-    dataset = CustomDataset(build=False)
+    dataset = CustomDataset(build=False, timesteps=8)
     dataset.count_valid_files()
     quit()
 

@@ -31,12 +31,19 @@ def get_args():
     ap.add_argument('-v', '--verbose', action='store_true')
     ap.add_argument('-n', '--num-epochs', type=int)
     ap.add_argument('-b', '--batch-size', type=int)
+    ap.add_argument('-s', '--steps', type=int)
 
     args = ap.parse_args()
 
     if not args.num_epochs:
         args.num_epochs = 5
         print('default 5 epochs')
+    if not args.steps:
+        args.steps = 8
+        print('default to 8 steps')
+    if not args.batch_size:
+        args.batch_size = 16
+        print('default to 8 steps')
 
     return args
 
@@ -150,10 +157,9 @@ def main():
     net.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net.args = args
     net.optimizer = torch.optim.SGD(net.parameters(), lr=0.001, weight_decay=1e-3)
-    net.batch_size = args.batch_size if args.batch_size else 64
 
     # try to load data
-    train_iter = CustomDataLoader(batch_size=net.batch_size)
+    train_iter = CustomDataLoader(batch_size=net.args.batch_size, timesteps=net.args.steps)
 
     # try to load weights
     if args.load:
