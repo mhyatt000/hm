@@ -75,13 +75,15 @@ class CustomDataset(torch.utils.data.Dataset):
     def __getitem__(self, i):
 
         # i = i%8
+
+        'TODO ... make a list of x that are too short and put in a file (8,16,32)'
         while True:
             file = f'dataset/cust_{i}.csv'
 
             try:
                 data = pd.read_csv(file)
             except:
-                print(f'file doesnt exist', file)
+                # print(f'file doesnt exist', file)
 
                 i += 1
                 continue
@@ -97,13 +99,13 @@ class CustomDataset(torch.utils.data.Dataset):
 
                 except Exception as ex:
                     print(ex)
-                    print(f'error in file: dataset/cust_{i}.csv')
+                    # print(f'error in file: dataset/cust_{i}.csv')
                     # return self.__getitem__(i+1)
                     # return self.return_zeros()
                     i += 1
                     continue
 
-            print(f'too small', file)
+            # print(f'too small', file)
             # return self.__getitem__(i+1)
             # return self.return_zeros()
             i += 1
