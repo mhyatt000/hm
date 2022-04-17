@@ -84,7 +84,7 @@ def train(net, train_iter):
     len_iter = len(train_iter)
     ce_loss = nn.CrossEntropyLoss()
     ctc_loss = nn.CTCLoss()
-    adlog_loss = nn.AdaptiveLogSoftmaxWithLoss(num_classes=105542, in_features=18)
+    adlog_loss = nn.AdaptiveLogSoftmaxWithLoss(n_classes=105542, in_features=18)
     losses = []
 
     pbar = tqdm(total=num_epochs*len_iter, desc='Training ')
