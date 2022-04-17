@@ -98,7 +98,7 @@ class CustomDataset(torch.utils.data.Dataset):
                     return self.pd_to_tensor(data)
 
                 except Exception as ex:
-                    print(ex)
+                    # print(ex)
                     # print(f'error in file: dataset/cust_{i}.csv')
                     # return self.__getitem__(i+1)
                     # return self.return_zeros()
