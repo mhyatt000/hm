@@ -98,8 +98,8 @@ def train(net, train_iter):
 
                 optimizer.zero_grad()
 
-                # X, Y = [x.to(device) for x in batch]
-                X,Y = X.to(device), Y.to(device)
+                X, Y = [x.to(device) for x in batch]
+                # X,Y = X.to(device), Y.to(device)
 
                 Y_hat, _ = net(X)
 
