@@ -66,8 +66,8 @@ class CustomDataset(torch.utils.data.Dataset):
     def return_zeros(self):
 
         zeros = [
-            torch.zeros(size=(1,self.timesteps,18)).double(),
-            torch.zeros(size=(1,self.timesteps,1)).double()
+            torch.zeros(size=(1,self.timesteps,18)),
+            torch.zeros(size=(1,self.timesteps,1))
         ]
         return zeros[0][0], zeros[1][0]
 
@@ -119,8 +119,8 @@ class CustomDataset(torch.utils.data.Dataset):
         y = y.flatten()[:32]
 
         norm = lambda x: torch.nn.functional.normalize(x)
-        x = norm(torch.tensor(x.reshape(-1,self.timesteps,18))).double()
-        y = norm(torch.tensor(y.reshape(-1,self.timesteps,1))).double()
+        x = norm(torch.tensor(x.reshape(-1,self.timesteps,18)))
+        y = norm(torch.tensor(y.reshape(-1,self.timesteps,1)))
 
         # raise Exception('err')
 

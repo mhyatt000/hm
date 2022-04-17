@@ -59,7 +59,7 @@ class ClothingPredictor(torch.nn.Module):
 
     def forward(self, X, state=None, *args):
         # In RNN models, the first axis corresponds to time steps
-        X = X.permute(1, 0, 2)
+        X = X.permute(1, 0, 2).float()
         # When state is not mentioned, it defaults to zeros
         output, state = self.lstm(X)
 
